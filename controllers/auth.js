@@ -1,3 +1,4 @@
+const ErrorResponse = require('../utils/errorResponse');
 const User = require('../models/User');
 
 // @desc    Register user
@@ -11,6 +12,6 @@ exports.register = async (req, res, next) => {
     const user = await User.create({ name, email, phone, password });
     res.status(200).json({ success: true });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    next(error);
   }
 };
