@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const errorHandler = require('./middleware/error');
 
 const connectDB = require('./config/db');
@@ -14,6 +15,9 @@ connectDB();
 const auth = require('./routes/auth');
 
 const app = express();
+
+// CORS
+app.use(cors());
 
 // Body parser
 app.use(express.json());
