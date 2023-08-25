@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/error');
 
 const connectDB = require('./config/db');
@@ -18,6 +19,9 @@ const app = express();
 
 // CORS
 app.use(cors());
+
+// Cookie parser
+app.use(cookieParser());
 
 // Body parser
 app.use(express.json());
