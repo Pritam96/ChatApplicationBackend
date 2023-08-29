@@ -14,6 +14,9 @@ connectDB();
 
 // Route files
 const auth = require('./routes/auth');
+const user = require('./routes/user');
+const chat = require('./routes/chat');
+const message = require('./routes/message');
 
 const app = express();
 
@@ -28,6 +31,9 @@ app.use(express.json());
 
 // Mount routers
 app.use('/api/v1/auth', auth);
+app.use('/api/v1/user', user);
+app.use('/api/v1/chat', chat);
+app.use('/api/v1/message', message);
 
 //* ErrorHandler
 app.use(errorHandler);
