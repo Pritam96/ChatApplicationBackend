@@ -1,12 +1,12 @@
-const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/async');
-const User = require('../models/User');
+const ErrorResponse = require("../utils/errorResponse");
+const asyncHandler = require("../middleware/async");
+const User = require("../models/User");
 
 // @desc    Get current logged in user
 // @route   GET /api/v1/user/me
 // @access  Private
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const user = req.user;
 
   res.status(200).json({
     success: true,
@@ -22,14 +22,15 @@ exports.allUsers = asyncHandler(async (req, res, next) => {
   if (req.query.search) {
     keyword = {
       $or: [
-        { name: { $regex: req.query.search, $options: 'i' } },
-        { email: { $regex: req.query.search, $options: 'i' } },
+        { name: { $regex: req.query.search, $options: "i" } },
+        { email: { $regex: req.query.search, $options: "i" } },
       ],
     };
   }
   const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
   res.status(200).json({
     success: true,
+    count: users.length,
     data: users,
   });
 });
