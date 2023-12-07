@@ -1,8 +1,8 @@
-const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
-const Message = require('../models/Message');
-const User = require('../models/User');
-const Chat = require('../models/Chat');
+const asyncHandler = require("../middleware/async");
+const ErrorResponse = require("../utils/errorResponse");
+const Message = require("../models/Message");
+const User = require("../models/User");
+const Chat = require("../models/Chat");
 
 // @desc    Send message
 // @route   POST /api/v1/message
@@ -10,7 +10,7 @@ const Chat = require('../models/Chat');
 exports.sendMessage = asyncHandler(async (req, res, next) => {
   const { chatId, content } = req.body;
   if (!chatId || !content) {
-    return next(ErrorResponse('Invalid data passed into request', 400));
+    return next(ErrorResponse("Invalid data passed into request", 400));
   }
 
   let message = await Message.create({
@@ -19,11 +19,11 @@ exports.sendMessage = asyncHandler(async (req, res, next) => {
     chat: chatId,
   });
 
-  message = await message.populate('sender', 'name phone');
-  message = await message.populate('chat');
+  message = await message.populate("sender", "name phone");
+  message = await message.populate("chat");
   message = await User.populate(message, {
-    path: 'chat.users',
-    select: 'name email phone',
+    path: "chat.users",
+    select: "name email phone",
   });
 
   // Update latest message
@@ -42,11 +42,12 @@ exports.sendMessage = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.allMessages = asyncHandler(async (req, res, next) => {
   const messages = await Message.find({ chat: req.params.chatId })
-    .populate('sender', 'name email phone')
-    .populate('chat');
+    .populate("sender", "name email phone")
+    .populate("chat");
 
   res.status(200).json({
     success: true,
+    count: messages.length,
     data: messages,
   });
 });

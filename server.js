@@ -37,15 +37,15 @@ app.use("/api/v1/user", user);
 app.use("/api/v1/chat", chat);
 app.use("/api/v1/message", message);
 
-// Serve static files
-app.use(express.static("./src"));
-app.get("*", (req, res, next) => res.sendFile("index.html"));
-
 // ErrorHandler middleware
 app.use(errorHandler);
 
+// Serve static files
+app.use(express.static("./src"));
+app.get("/", (req, res, next) => res.sendFile("index.html"));
+
 // Define the port for the server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 // Start the server and listen on the specified port
 const server = app.listen(
@@ -53,51 +53,32 @@ const server = app.listen(
   console.log(`Server is running on port ${PORT}`)
 );
 
+// Socket.io setup
+const io = new Server(server, {
+  cors: { origin: `http://localhost:${PORT}` }, // Configure CORS
+});
+
+io.on("connection", (socket) => {
+  console.log(`User is connected with id ${socket.id}`);
+
+  socket.on("send-message", (message) => {
+    // Emit message to each user in the chat except the sender
+    message.chat.users.forEach((user) => {
+      if (user._id !== message.sender._id) {
+        socket.in(user._id).emit("receive-message", message);
+      }
+    });
+  });
+
+  socket.on("join-room", (room, callback) => {
+    socket.join(room);
+    callback(`Joined ${room}`); // Send a callback message to the client
+  });
+});
+
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err, promise) => {
   console.log(`Error: ${err.message}`);
   // Close server & exit process
   server.close(() => process.exit(1));
-});
-
-// Socket.io setup
-const io = new Server(server, {
-  pingTimeout: 60000,
-  cors: { origin: `http://localhost:${PORT}` },
-});
-
-// Handle socket connections
-io.on("connection", (socket) => {
-  console.log("Connected to socket.io");
-
-  // Handle user setup on connection
-  socket.on("setup", (userData) => {
-    socket.join(userData._id);
-    socket.emit("connected");
-  });
-
-  // Handle user joining a chat room
-  socket.on("join chat", (room) => {
-    socket.join(room);
-    console.log("User joined room:", room);
-  });
-
-  // Handle new messages in a chat
-  socket.on("new message", (newMessageReceived) => {
-    var chat = newMessageReceived.chat;
-    if (!chat.users) {
-      return console.log("Chat users not defined");
-    }
-    chat.users.forEach((user) => {
-      if (user._id.toString() !== newMessageReceived.sender._id.toString()) {
-        socket.in(user._id).emit("message received", newMessageReceived);
-      }
-    });
-  });
-
-  // Handle user disconnection
-  socket.off("setup", () => {
-    console.log("User disconnected");
-    socket.leave(userData._id);
-  });
 });
