@@ -59,7 +59,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User is connected with id ${socket.id}`);
+  console.log(`User is connected with id: ${socket.id}`);
 
   socket.on("send-message", (message) => {
     // Emit message to each user in the chat except the sender
@@ -73,6 +73,29 @@ io.on("connection", (socket) => {
   socket.on("join-room", (room, callback) => {
     socket.join(room);
     callback(`Joined ${room}`); // Send a callback message to the client
+  });
+
+  // Handle disconnect
+  socket.on("disconnect", async () => {
+    console.log(`User disconnected with id: ${socket.id}`);
+  });
+
+  // Handle disconnect-and-leave-room
+  socket.on("disconnect-and-leave-room", (data, callback) => {
+    // Leave any rooms the user has joined
+    const rooms = Object.keys(socket.rooms);
+    rooms.forEach((room) => {
+      if (room !== socket.id) {
+        socket.leave(room);
+        console.log(`User left room: ${room}`);
+      }
+    });
+
+    // Disconnect the socket
+    socket.disconnect();
+
+    // Callback to the client
+    callback();
   });
 });
 
