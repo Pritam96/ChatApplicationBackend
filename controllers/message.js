@@ -1,5 +1,6 @@
 const asyncHandler = require("../middleware/async");
 const ErrorResponse = require("../utils/errorResponse");
+const s3UploadV2 = require("../utils/s3Service");
 const Message = require("../models/Message");
 const User = require("../models/User");
 const Chat = require("../models/Chat");
@@ -9,15 +10,35 @@ const Chat = require("../models/Chat");
 // @access  Private
 exports.sendMessage = asyncHandler(async (req, res, next) => {
   const { chatId, content } = req.body;
-  if (!chatId || !content) {
-    return next(ErrorResponse("Invalid data passed into request", 400));
-  }
+  const { file } = req;
 
-  let message = await Message.create({
+  let data = {
     sender: req.user._id,
     content: content,
     chat: chatId,
-  });
+  };
+
+  if (file) {
+    if (!file.mimetype.startsWith("image")) {
+      return next(new ErrorResponse("Please upload an image file", 400));
+    }
+    if (file.size > 6000000) {
+      return next(
+        new ErrorResponse(
+          "Image is too large. Please upload an image under 5mb",
+          400
+        )
+      );
+    }
+    const result = await s3UploadV2(file);
+    data = {
+      sender: req.user._id,
+      fileUrl: result.Location,
+      chat: chatId,
+    };
+  }
+
+  let message = await Message.create(data);
 
   message = await message.populate("sender", "name phone");
   message = await message.populate("chat");

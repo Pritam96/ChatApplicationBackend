@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
+const multer = require("multer");
 const errorHandler = require("./middleware/error");
 const connectDB = require("./config/db");
 
@@ -24,6 +25,12 @@ app.use(cookieParser());
 
 // Middleware for parsing JSON in request bodies
 app.use(express.json());
+
+// Multer configuration
+const memoryStorage = multer.memoryStorage();
+
+// Multer middleware for file upload
+app.use(multer({ storage: memoryStorage }).single("file"));
 
 // Define routes
 const auth = require("./routes/auth");

@@ -9,7 +9,10 @@ const MessageSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: [true, 'Content is missing'],
+      trim: true,
+    },
+    fileUrl: {
+      type: String,
       trim: true,
     },
     chat: {
