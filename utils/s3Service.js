@@ -1,3 +1,4 @@
+const path = require("path");
 const { S3 } = require("aws-sdk");
 
 const s3UploadV2 = async (file) => {
@@ -8,7 +9,9 @@ const s3UploadV2 = async (file) => {
 
   const param = {
     Bucket: process.env.AWS_BUCKET_NAME,
-    Key: `uploads/${subFolderName}/${subFolderName}_${uniqueSuffix}`,
+    Key: `uploads/${subFolderName}/${subFolderName}_${uniqueSuffix}${path.extname(
+      file.originalname
+    )}`,
     Body: file.buffer,
   };
 
