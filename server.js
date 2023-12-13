@@ -5,8 +5,10 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const multer = require("multer");
+const cron = require("node-cron");
 const errorHandler = require("./middleware/error");
 const connectDB = require("./config/db");
+const archiveMessages = require("./utils/archiveMessages");
 
 // Load environment variables
 dotenv.config({ path: "./config/config.env" });
@@ -37,12 +39,14 @@ const auth = require("./routes/auth");
 const user = require("./routes/user");
 const chat = require("./routes/chat");
 const message = require("./routes/message");
+// const archive = require("./routes/archive");
 
 // Mount routers
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/user", user);
 app.use("/api/v1/chat", chat);
 app.use("/api/v1/message", message);
+// app.use("/api/v1/archive", archive);
 
 // ErrorHandler middleware
 app.use(errorHandler);
@@ -105,6 +109,9 @@ io.on("connection", (socket) => {
     callback();
   });
 });
+
+// Schedule the archiving job to run every night at midnight
+cron.schedule("0 0 * * *", archiveMessages);
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err, promise) => {
