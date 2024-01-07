@@ -2,7 +2,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const multer = require("multer");
 const cron = require("node-cron");
@@ -22,9 +21,6 @@ const app = express();
 // Middleware for Cross-Origin Resource Sharing (CORS)
 app.use(cors());
 
-// Middleware for parsing cookies
-app.use(cookieParser());
-
 // Middleware for parsing JSON in request bodies
 app.use(express.json());
 
@@ -39,14 +35,12 @@ const auth = require("./routes/auth");
 const user = require("./routes/user");
 const chat = require("./routes/chat");
 const message = require("./routes/message");
-// const archive = require("./routes/archive");
 
 // Mount routers
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/user", user);
 app.use("/api/v1/chat", chat);
 app.use("/api/v1/message", message);
-// app.use("/api/v1/archive", archive);
 
 // ErrorHandler middleware
 app.use(errorHandler);

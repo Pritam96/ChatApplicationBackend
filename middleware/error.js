@@ -10,9 +10,6 @@ const ErrorResponse = require('../utils/errorResponse');
 const errorHandler = (err, req, res, next) => {
   // Log error to the console for dev
   console.log(err);
-  //   console.log('ERROR NAME: ', err.name);
-  //   console.log('ERROR CODE: ', err.code);
-  //   console.log('ERROR MESSAGE: ', err.message);
 
   let error = { ...err };
   error.message = err.message;
